@@ -1,7 +1,7 @@
-# Type Derivation Viewer
+# Type Derivation Viewer(TyDeViewer)
 
-## What is Type Derivation Viewer?
-It is a tool that can visualize a type derivation of expressions in Idris2.
+## What is TyDeViewer?
+TyDeViewer is a tool that can visualize a type derivation of expressions in Idris2.
 It shows the process of type derivation in a tree written in text as shown in the example below.
 
 Right now the tool is a prototype and is only implemented as VS Code LSP client.
