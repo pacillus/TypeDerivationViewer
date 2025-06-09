@@ -1,6 +1,6 @@
-# Type Derivation Visualizer
+# Type Derivation Viewer
 
-## What is Type Derivation Visualizer?
+## What is Type Derivation Viewer?
 
 ## Features
 
