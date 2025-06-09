@@ -6,6 +6,30 @@ It shows the process of type derivation in a tree written in text as shown in th
 
 Right now the tool is a prototype and is only implemented as VS Code LSP client.
 
+## Example
+For example, assume that below are defined.
+```
+xs : Vect 4 Nat
+y : Nat
+ys : Vect 2 Nat
+```
+Then if you give the `xs ++ (y :: ys)` as input you get the output below.
+```
+xs ++ (y :: ys) : Vect (4 + S 2) Nat
++---------
+| (++) xs : (ys : Vect n Nat) -> Vect (4 + n) Nat
+| +---------
+| | (++) : (xs : Vect m elem) -> (ys : Vect n elem) -> Vect (m + n) elem
+| | xs : Vect 4 Nat
+| y :: ys : Vect (S 2) Nat
+| +---------
+| | (::) y : Vect len Nat -> Vect (S len) Nat
+| | +---------
+| | | (::) : elem -> Vect len elem -> Vect (S len) elem
+| | | y : Nat
+| | ys : Vect 2 Nat
+```
+
 ## How can I run the tool in VS Code?
 ### Requirements
 - [vsce](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#vsce)(Requires Node.js for installation)
