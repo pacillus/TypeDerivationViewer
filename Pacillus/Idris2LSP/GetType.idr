@@ -8,8 +8,8 @@ import System
 import Text.Parser.Expression
 
 import Pacillus.Idris2LSP.Parser.Basic
-import Pacillus.Idris2LSP.Parser.Sugared
 import Pacillus.Idris2LSP.Parser.Desugared
+import Pacillus.Idris2LSP.Parser.Sugared
 import Pacillus.Idris2LSP.TypeTree.TypeTree
 import Pacillus.Idris2LSP.TypeTree.Output
 import Pacillus.Idris2LSP.Util
@@ -73,35 +73,45 @@ json2Info input@(JObject (xs)) =
         convstrarr _ = Left #"Error : Non string at "sigs" in input JSON"#
 json2Info _ = Left "Invalid input JSON form"
 
-
-
-
 parseInput : String -> Either String (String, InOperatorMap, List String)
 parseInput str =
   case Language.JSON.parse str of
     Nothing => Left "Error : Input JSON parse failed"
     (Just x) => json2Info x
 
-parseAndDesugarSigs : InOperatorMap -> List String -> Either String (List (Desugared NoHole))
-parseAndDesugarSigs _ [] = Right []
-parseAndDesugarSigs opmap (str :: xs) with (parseSig opmap str)
-  parseAndDesugarSigs opmap (str :: xs) | (Left x) = Left x
-  parseAndDesugarSigs opmap (str :: xs) | (Right x) = ?rhs
+-- parseAndDesugarSigs : InOperatorMap -> List String -> Either String (List (Desugared NoHole))
+-- parseAndDesugarSigs _ [] = Right []
+-- parseAndDesugarSigs opmap (str :: xs) with (parseSig opmap str)
+--   parseAndDesugarSigs opmap (str :: xs) | (Left x) = Left x
+--   parseAndDesugarSigs opmap (str :: xs) | (Right x) = ?rhs
+
+toPatterns : List (List1 (DesugaredSignature NoHole)) -> List1 (List (DesugaredSignature NoHole))
+toPatterns [] = [] ::: []
+toPatterns (xs :: xss) = [x :: pat | x <- xs, pat <- toPatterns xss]
+
+showResultsMain : List String -> List String -> List (Either String TypeTree) -> String
+showResultsMain fails [] [] = unlines ("Derivation failed; Below are the errors" :: fails)
+showResultsMain _ succs@(_ :: _) [] = unlines succs
+showResultsMain fails succs (Left x :: xs) = showResultsMain (x :: fails) succs xs
+showResultsMain fails succs (Right x :: xs) = showResultsMain fails (output x :: succs) xs
+
+showResults : List1 (Either String TypeTree) -> String
+showResults = showResultsMain [] [] . forget
 
 inferType : String -> InOperatorMap -> List String -> String
 inferType expr opmap types =
   let
     ty_list = map (parseSig opmap) types
-    sigs = convertInList2ListIn ty_list
     result = 
       do
-        target <- (parse opmap) expr
-        des_sigs <- map (map (head . desugarSig)) sigs
-        getPartialType des_sigs (head $ desugar target)
+        sigs <- convertInList2ListIn ty_list
+        target <- parse opmap expr
+        des_sigs_pats <- Right $ toPatterns (map desugarSig sigs)
+        Right $ [getPartialType des_sigs target' | des_sigs <- des_sigs_pats, target' <- desugar target]
   in
   case result of
     (Left error) => error
-    (Right tree) => output tree
+    (Right results) => showResults results
 
 process : String -> String
 process str =
@@ -113,10 +123,19 @@ process str =
           "Builtin.DPair.DPair : (a : Type) -> (a -> Type) -> Type" ::
           "Builtin.DPair.MkDPair : (fst : a) -> p fst -> DPair a p" :: 
           "Builtin.Pair : Type -> Type -> Type" ::
+          "Builtin.MkPair : a -> b -> Pair a b" ::
+          "Builtin.MkUnit : Unit" ::
+          "Builtin.Unit : Type" ::
+          "Builtin.(===) : a -> a -> Type" ::
           "Prelude.fromInteger : Num ty => Integer -> ty" ::
           "Builtin.fromDouble : FromDouble ty => Double -> ty" ::
           "Builtin.fromChar : FromChar ty => Char -> ty" ::
           "Builtin.fromString : FromString ty => String -> ty" ::
+          "String : Type" ::
+          "Char : Type" ::
+          "Int : Type" ::
+          "Integer : Type" ::
+          "Double : Type" ::
             types)
 
 main : IO ()

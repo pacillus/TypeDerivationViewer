@@ -1,5 +1,6 @@
 module Pacillus.Idris2LSP.Parser.Basic
 
+-- Identifiers to tell which type the Literal is
 public export
 data LiteralType = IntegerL | DoubleL | CharL | StringL
 
@@ -11,7 +12,10 @@ LiteralTypeOf CharL = Char
 LiteralTypeOf StringL = String
 
 public export
-data IdentifierType = NameId | OperatorId | MemberId
+data IdentifierType = 
+          NameId -- id
+        | OperatorId -- +
+        | MemberId -- .fun
 
 public export
 Eq IdentifierType where
@@ -33,8 +37,6 @@ export
 Eq Identifier where
     (MkIdentifier tl strl) == (MkIdentifier tr strr) = tl == tr && strl == strr
 
-
-
 public export
 data Operator = MkOperator String
 
@@ -43,8 +45,11 @@ data Member = MkMember String
 
 namespace Sugared
     public export
-    data ArrowType = SingleLine | DoubleLine
+    data ArrowType =
+          SingleLine -- ->
+        | DoubleLine -- =>
 
+    -- in the data type Sugared, there are two sub type Expression(Expr) and Signature(Sig)
     public export
     data SubSyntaxGroup = Sig | Expr
 
@@ -70,16 +75,13 @@ namespace Sugared
         -- signature
         Signature : Identifier -> Sugared Expr -> Sugared Sig -- x : a
 
-
-
 namespace Desugared
     public export
-    data BinderType = Pi | Lambda | Auto | Implicit
-    -- (x : a) -> b
-    -- \x => e
-    -- (x : a) => b
-    -- {x : a} -> b(x)
-    -- a -> b
+    data BinderType = 
+          Pi -- (x : a) -> b
+        | Lambda -- \x => e
+        | Auto -- (x : a) => b, (auto x : a) -> b
+        | Implicit -- {x : a} -> b(x)
 
     public export
     Eq BinderType where
@@ -98,8 +100,8 @@ namespace Desugared
 
     public export
     data BinderName : Type where
-        NamedBinder : Identifier -> BinderName
-        AnonymousBinder : BinderName
+        NamedBinder : Identifier -> BinderName -- \x => 
+        AnonymousBinder : BinderName -- \_ =>
 
     public export
     Show BinderName where
@@ -123,25 +125,9 @@ namespace Desugared
         Binder : BinderType -> BinderName -> Desugared t -> Desugared t -> Desugared t
         Literal : (t : LiteralType) -> LiteralTypeOf t -> Desugared dt
         Wildcard : Desugared NoHole -- _
+        -- below are used internally to derive type
         ImplicitHole : Identifier -> Nat -> Desugared WithHole -- 
-        Assumption : Identifier -> Nat -> Desugared WithHole
-    
-    -- Show (Desugared WithHole) where
-    --     showPrec (Constant x y) = ?rhs_0
-    --     show (Index id k) = show id
-    --     show (Application x y) = ?rhs_2
-    --     show (Binder Pi (NamedBinder id) ty e) = "(" ++ show id ++ " : " ++show ty ++ ") -> " ++ show e
-    --     show (Binder Pi AnonymousBinder ty e) = show ty ++ " -> " ++ show e
-    --     show (Binder Lambda (NamedBinder x) z w) = ?rhs_9
-    --     show (Binder Lambda AnonymousBinder z w) = ?rhs_10
-    --     show (Binder Auto y z w) = ?rhs_6
-    --     show (Binder Implicit y z w) = ?rhs_7
-    --     show (Literal IntegerL x) = show x
-    --     show (Literal DoubleL x) = show x
-    --     show (Literal CharL x) = show x
-    --     show (Literal StringL x) = show x
-    --     show (ImplicitHole id k) = "?" ++ show id
-    
+        Assumption : Identifier -> Nat -> Desugared WithHole  
 
     public export
     data DesugaredSignature : DesugaredType -> Type where
