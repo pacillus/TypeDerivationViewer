@@ -15,8 +15,8 @@ Right now the tool is a prototype and is only implemented as VS Code LSP client.
 To run the vscode implementation, follow the instruction in the section [Installing the extension](https://github.com/pacillus/idris2-lsp-vscode?tab=readme-ov-file#installing-the-extension) in [idris2-vscode fork](https://github.com/pacillus/idris2-lsp-vscode).
 
 ### Executing
-Select the expression (like by click-and-dragging) to derive type.
-Then go to command palette and select or type in `Idris: Show the Type Derivation Tree of selection` to show the Type Derivation Tree.
+Select the expression to derive type (like by click-and-dragging).
+Then go to command palette(by pressing `Ctrl + Shift + P` (Windows/Linux) or `Command + Shift + P` (Mac)) and select or type in `Idris: Show the Type Derivation Tree of selection` to show the Type Derivation Tree.
 
 ## For other editors
 There is no implementation for other editors right now.
