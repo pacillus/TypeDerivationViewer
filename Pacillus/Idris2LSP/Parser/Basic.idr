@@ -139,14 +139,12 @@ namespace Desugared
         Wildcard : Desugared NoHole -- _
         HoleTerm : Hole -> Desugared NoHole
         -- below are used internally to derive type
-        ImplicitVariable : Identifier -> Nat -> Desugared WithHole -- 
-        HoleVariable : Hole -> Nat -> Desugared WithHole -- 
+        ImplicitVariable : Identifier -> Nat -> Desugared WithHole --
         Assumption : Identifier -> Nat -> Desugared WithHole  
 
     public export
     data DesugaredSignature : DesugaredType -> Type where
         MkDSig : Identifier -> Desugared t -> DesugaredSignature t
-        MkDHoleSig : Hole -> Desugared t -> DesugaredSignature t
 
 public export
 data ExprSignature : Type where
