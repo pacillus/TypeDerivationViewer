@@ -2,6 +2,7 @@ module Pacillus.Idris2LSP.TypeTree.Output
 
 import Pacillus.Idris2LSP.Parser.Basic
 import Data.String
+import Language.JSON
 
 namespace Identifier
     public export
@@ -119,11 +120,11 @@ namespace ExprSignature
     output (MkExprSignature x y) = "\{output x} : \{output y}"
 
 namespace TypeTree
+    output' : TypeTree -> JSON
+    output' (Start sig) = JString $ output sig
+    output' (Subgoal xs x) =
+        JObject $ ("Conclusion", JString $ output x) :: ("Premises", JArray $ map output' xs) :: []
+
     export
     output : TypeTree -> String
-    output (Start sig) = output sig
-    output (Subgoal xs x) =
-      let
-        pres = map ((++) "| ") $ foldl (++) [] $ map (lines . output) xs
-      in
-        unlines $ output x :: "+---------" :: pres
+    output tree = show $ output' tree
