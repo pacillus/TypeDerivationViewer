@@ -171,12 +171,6 @@ mutual
         match SEColon
         e <- tArrows optable
         pure $ Signature id e
-      <|>
-      do
-        h <- hole
-        match SEColon 
-        e <- tArrows optable
-        pure $ HoleSignature h e
 
     ignoreZero : Grammar state SimpleExprToken False ()
     ignoreZero = 

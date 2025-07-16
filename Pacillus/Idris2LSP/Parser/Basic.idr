@@ -86,7 +86,6 @@ namespace Sugared
         MemberSugar : Sugared Expr -> Member -> Sugared Expr -- x.fst (.fst)
         -- signature
         Signature : Identifier -> Sugared Expr -> Sugared Sig -- x : a
-        HoleSignature : Hole -> Sugared Expr -> Sugared Sig
 
 namespace Desugared
     public export
