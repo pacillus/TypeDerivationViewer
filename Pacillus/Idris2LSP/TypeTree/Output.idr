@@ -120,9 +120,10 @@ namespace ExprSignature
 
 namespace TypeTree
     output' : TypeTree -> JSON
-    output' (Start sig) = JString $ output sig
+    output' (Start (MkExprSignature expression type)) = 
+        JObject (("expression", JString $ output expression) :: ("type", JString $ output type) :: [])
     output' (Subgoal xs x) =
-        JObject $ ("Conclusion", JString $ output x) :: ("Premises", JArray $ map output' xs) :: []
+        JObject $ ("conclusion", JString $ output x) :: ("premises", JArray $ map output' xs) :: []
 
     export
     output : TypeTree -> String
